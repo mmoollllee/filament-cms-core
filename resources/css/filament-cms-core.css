@@ -1,0 +1,22 @@
+/*
+ * Tailwind SOURCE GLUE for the panel theme of an app that uses the content engine.
+ * Import it from your Filament theme CSS so Tailwind scans the engine's views and
+ * classes for the utilities the block previews, overrides and widgets use:
+ *
+ *   @import '../../../vendor/mmoollllee/filament-cms-core/resources/css/filament-cms-core.css';
+ *
+ * Sites on filament-cms need not: the site layer's filament-cms.css imports this file.
+ * The builder's own UX styles ship PRECOMPILED in builder.css and are registered as a
+ * Filament asset — no theme required for those.
+ */
+@source '../views/**/*.blade.php';
+@source '../overrides/**/*.blade.php';
+@source '../blocks/**/*.blade.php';
+@source '../../src/**/*.php';
+
+/* The revisions pages render mansoor/filament-versionable's own Blade views. Two
+   candidates, because @source resolves against the REAL path of this file: next to
+   this package in the app's vendor dir, or in the package's own vendor dir when it is
+   symlinked as a path repository. Tailwind ignores a candidate that does not exist. */
+@source '../../../../mansoor/filament-versionable/resources/**/*.blade.php';
+@source '../../vendor/mansoor/filament-versionable/resources/**/*.blade.php';

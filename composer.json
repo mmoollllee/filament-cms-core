@@ -1,0 +1,62 @@
+{
+    "name": "mmoollllee/filament-cms-core",
+    "description": "The content engine of filament-cms (Laravel 12/13 + Filament v5): content types, the block builder, the RichEditor stack, drafts, versions, locking and media — for sites built on filament-cms and for apps that bring their own tenancy and panels.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "awcodes/richer-editor": "^2.1",
+        "blendbyte/filament-resource-lock": "^2.2",
+        "blendbyte/filament-title-with-slug": "^3.0",
+        "defstudio/filament-searchable-input": "^5.0",
+        "filament/filament": "^5.0",
+        "mansoor/filament-versionable": "^5.1",
+        "mmoollllee/filament-builder-title": "^0.3.0",
+        "mmoollllee/filament-tenant-access": "^0.1",
+        "ueberdosis/tiptap-php": "^2.1",
+        "yannkuesthardt/laravel-spamprotect": "^2.0|^3.0"
+    },
+    "suggest": {
+        "pbmedia/laravel-ffmpeg": "Re-encodes uploaded videos for the web (ConvertsUploadedVideos, ^8.9); needs an ffmpeg binary.",
+        "ralphjsmit/laravel-filament-media-library": "The media library behind every media field and the RichEditor's picker (^4.1, commercial — needs a licence and the satis.ralphjsmit.com repository). Wired automatically once installed.",
+        "spatie/laravel-medialibrary": "Required together with ralphjsmit/laravel-filament-media-library (^11.0).",
+        "mmoollllee/filament-media-library-extensions": "Upload button, inline and drop-zone uploads, auto-selection and the extended preview for the media picker (^0.2). Used automatically once installed.",
+        "mmoollllee/filami": "Umami analytics; the spam-protected contact links report their clicks through it (^0.4)."
+    },
+    "autoload": {
+        "psr-4": {
+            "Mmoollllee\\Cms\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Mmoollllee\\Cms\\CmsCoreServiceProvider"
+            ]
+        }
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.filamentphp.com/composer"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/mmoollllee/filament-builder-title"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/mmoollllee/filament-tenant-access"
+        }
+    ],
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

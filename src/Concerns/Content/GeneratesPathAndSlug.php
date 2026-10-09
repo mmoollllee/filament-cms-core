@@ -11,10 +11,10 @@ use Mmoollllee\Cms\Contracts\Content;
 use Mmoollllee\Cms\Filament\Resources\Contents\Pages\ContentEditPage;
 use Mmoollllee\Cms\Sites\ContentBlueprintRegistry;
 use Mmoollllee\Cms\Support\Content\ContentTree;
+use Mmoollllee\Cms\Contracts\AddressReservations;
 use Mmoollllee\Cms\Support\Content\FrontendUrl;
 use Mmoollllee\Cms\Support\Content\PathConflicts;
 use Mmoollllee\Cms\Support\Content\PathGenerator;
-use Mmoollllee\Cms\Support\Routing\ContentRenameRedirects;
 use Mmoollllee\Cms\Support\Routing\PathNormalizer;
 use Mmoollllee\Cms\Support\Tenancy\CurrentTenant;
 
@@ -94,7 +94,7 @@ trait GeneratesPathAndSlug
         // shown as "Ziel fehlt" forever and pruned by nothing. Deactivated while the
         // target is still readable, so an admin can repoint them instead of guessing.
         static::deleting(function (Model $content): void {
-            app(ContentRenameRedirects::class)->deactivateInbound($content);
+            app(AddressReservations::class)->deactivateInbound($content);
         });
 
         // Renaming/moving a page moves its subtree: children re-save, which re-runs
@@ -114,7 +114,7 @@ trait GeneratesPathAndSlug
             // restore, the Duplizieren action, a table reorder, an import or a console
             // command all run this hook, and none of them has anyone to ask. The cascade
             // below re-saves each descendant, so every one of them writes its own.
-            app(ContentRenameRedirects::class)->followRename($content);
+            app(AddressReservations::class)->followRename($content);
 
             // All or nothing. The saving guard above rejects a move whose subtree does not
             // fit, but a row written between that check and this cascade would still throw

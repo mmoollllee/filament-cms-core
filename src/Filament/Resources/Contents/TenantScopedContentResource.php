@@ -48,6 +48,8 @@ use Mmoollllee\Cms\Cms;
 use Mmoollllee\Cms\CmsServiceProvider;
 use Mmoollllee\Cms\Contracts\Content;
 use Mmoollllee\Cms\Contracts\ContentBlueprint;
+use Mmoollllee\Cms\Contracts\AddressReservation;
+use Mmoollllee\Cms\Contracts\AddressReservations;
 use Mmoollllee\Cms\Contracts\Tenant;
 use Mmoollllee\Cms\Enums\ContentStatus;
 use Mmoollllee\Cms\Enums\ContentVisibility;
@@ -56,7 +58,6 @@ use Mmoollllee\Cms\Fields\SeoFields;
 use Mmoollllee\Cms\Filament\Forms\BlockBuilder;
 use Mmoollllee\Cms\Filament\Support\ManagementLinks;
 use Mmoollllee\Cms\Models\LayoutPreset;
-use Mmoollllee\Cms\Models\Redirect;
 use Mmoollllee\Cms\Sites\ContentBlueprintRegistry;
 use Mmoollllee\Cms\Sites\SiteExtensionRegistry;
 use Mmoollllee\Cms\Support\Content\Blocks\BuilderBlockRegistry;
@@ -66,7 +67,6 @@ use Mmoollllee\Cms\Support\Content\FrontendUrl;
 use Mmoollllee\Cms\Support\Content\PathConflicts;
 use Mmoollllee\Cms\Support\Content\TemplateResolver;
 use Mmoollllee\Cms\Support\Preview\Drafts;
-use Mmoollllee\Cms\Support\Routing\ContentRenameRedirects;
 use Mmoollllee\Cms\Support\Routing\PathNormalizer;
 use Mmoollllee\Cms\Support\Tenancy\CurrentTenant;
 
@@ -1733,7 +1733,7 @@ abstract class TenantScopedContentResource extends Resource
             $fail(sprintf(
                 'Auf „%s“ zeigt eine Weiterleitung nach „%s“ — die Seite wäre dort nicht erreichbar. '
                 .'Über „Adresse übernehmen“ wird sie entfernt.',
-                $standing->from_path,
+                $standing->reservedPath(),
                 $standing->resolvedTarget() ?? '—',
             ));
         };
@@ -1755,7 +1755,7 @@ abstract class TenantScopedContentResource extends Resource
                 return;
             }
 
-            $shadowed = app(ContentRenameRedirects::class)->firstShadowedInSubtree($probe);
+            $shadowed = app(AddressReservations::class)->firstShadowedInSubtree($probe);
 
             if ($shadowed === null) {
                 return;
@@ -1765,7 +1765,7 @@ abstract class TenantScopedContentResource extends Resource
                 '„%s“ würde dadurch auf „%s“ verschoben, und dorthin zeigt bereits eine Weiterleitung '
                 .'nach „%s“ — die Seite wäre dort nicht erreichbar.',
                 $shadowed['record']->getAttribute('title'),
-                $shadowed['redirect']->from_path,
+                $shadowed['redirect']->reservedPath(),
                 $shadowed['redirect']->resolvedTarget() ?? '—',
             ));
         };
@@ -1783,7 +1783,7 @@ abstract class TenantScopedContentResource extends Resource
      * {@see PathConflicts} draws the same line for content-versus-content, with the same
      * `exists && ! isDirty('path')` test.
      */
-    protected static function addressHeldByRedirect(Get $get, ?Model $record, ?Tenant $tenant, string $path): ?Redirect
+    protected static function addressHeldByRedirect(Get $get, ?Model $record, ?Tenant $tenant, string $path): ?AddressReservation
     {
         $probe = static::pathProbeFor($get, $record, $tenant, $path);
 
@@ -1791,7 +1791,7 @@ abstract class TenantScopedContentResource extends Resource
             return null;
         }
 
-        $standing = app(ContentRenameRedirects::class)->shadowing(
+        $standing = app(AddressReservations::class)->shadowing(
             $tenant?->getKey() ?? $probe->getAttribute('tenant_id'),
             $probe->getAttribute('path'),
             $probe,
@@ -1841,7 +1841,7 @@ abstract class TenantScopedContentResource extends Resource
                 Notification::make()
                     ->success()
                     ->title('Adresse wird übernommen')
-                    ->body(sprintf('Die Weiterleitung von „%s“ wird beim Speichern entfernt.', $standing->from_path))
+                    ->body(sprintf('Die Weiterleitung von „%s“ wird beim Speichern entfernt.', $standing->reservedPath()))
                     ->send();
             });
     }
@@ -1886,7 +1886,7 @@ abstract class TenantScopedContentResource extends Resource
 
         $page->data[static::TAKEOVER_CONSENT_FIELD] = null;
 
-        $redirects = app(ContentRenameRedirects::class);
+        $redirects = app(AddressReservations::class);
 
         $standing = $redirects->shadowing(
             $record->getAttribute('tenant_id'),
@@ -1903,7 +1903,7 @@ abstract class TenantScopedContentResource extends Resource
         Notification::make()
             ->success()
             ->title('Adresse übernommen')
-            ->body(sprintf('Die Weiterleitung von „%s“ wurde entfernt.', $standing->from_path))
+            ->body(sprintf('Die Weiterleitung von „%s“ wurde entfernt.', $standing->reservedPath()))
             ->send();
     }
 
